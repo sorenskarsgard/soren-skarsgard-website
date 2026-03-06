@@ -253,9 +253,16 @@ if (resumeDownloadLink) {
     resumeDownloadLink.addEventListener('click', async function(e) {
         e.preventDefault();
         
+        const resumePath = '/resume.pdf';
+        
         try {
             // Fetch the PDF as a blob
-            const response = await fetch('resume.pdf');
+            const response = await fetch(resumePath);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const blob = await response.blob();
             
             // Create a blob URL
@@ -270,22 +277,25 @@ if (resumeDownloadLink) {
             // Append to body, click, and remove
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
             
-            // Clean up the blob URL
+            // Clean up
             setTimeout(() => {
+                document.body.removeChild(link);
                 window.URL.revokeObjectURL(blobUrl);
             }, 100);
         } catch (error) {
             console.error('Download failed:', error);
-            // Fallback: try direct download
+            // Fallback: try direct download with absolute path
             const link = document.createElement('a');
-            link.href = 'resume.pdf';
+            // Try absolute path
+            link.href = '/resume.pdf';
             link.download = 'Soren_Skarsgard_Resume.pdf';
-            link.target = '_blank';
+            link.style.display = 'none';
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
+            setTimeout(() => {
+                document.body.removeChild(link);
+            }, 100);
         }
     });
 }
