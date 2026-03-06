@@ -247,6 +247,49 @@ if (codeCursor) {
     }, 530);
 }
 
+// ===== Resume Download Handler =====
+const resumeDownloadLink = document.getElementById('resume-download-link');
+if (resumeDownloadLink) {
+    resumeDownloadLink.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        try {
+            // Fetch the PDF as a blob
+            const response = await fetch('resume.pdf');
+            const blob = await response.blob();
+            
+            // Create a blob URL
+            const blobUrl = window.URL.createObjectURL(blob);
+            
+            // Create a temporary anchor element to force download
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = 'Soren_Skarsgard_Resume.pdf';
+            link.style.display = 'none';
+            
+            // Append to body, click, and remove
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Clean up the blob URL
+            setTimeout(() => {
+                window.URL.revokeObjectURL(blobUrl);
+            }, 100);
+        } catch (error) {
+            console.error('Download failed:', error);
+            // Fallback: try direct download
+            const link = document.createElement('a');
+            link.href = 'resume.pdf';
+            link.download = 'Soren_Skarsgard_Resume.pdf';
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    });
+}
+
 // ===== Initialize on Load =====
 window.addEventListener('load', () => {
     // Trigger initial animations
